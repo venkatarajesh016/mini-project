@@ -253,6 +253,38 @@ export const playlists: Playlist[] = [
     songs: teluguSongs.slice(5, 15),
     songCount: 30,
   },
+  {
+    id: "7",
+    name: "Chill Vibes",
+    description: "Relaxing melodies to unwind and chill",
+    cover: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop",
+    songs: teluguSongs.slice(3, 9),
+    songCount: 32,
+  },
+  {
+    id: "8",
+    name: "Indie Telugu",
+    description: "Independent and underground Telugu artists",
+    cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
+    songs: teluguSongs.slice(6, 14),
+    songCount: 26,
+  },
+  {
+    id: "9",
+    name: "Classical Fusion",
+    description: "Where classical meets modern Telugu music",
+    cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=300&h=300&fit=crop",
+    songs: teluguSongs.slice(1, 10),
+    songCount: 38,
+  },
+  {
+    id: "10",
+    name: "Evening Classics",
+    description: "Timeless classics for your evening",
+    cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+    songs: teluguSongs.slice(7, 15),
+    songCount: 40,
+  },
 ];
 
 // Artists

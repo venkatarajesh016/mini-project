@@ -15,9 +15,28 @@ const MusicCard: React.FC<MusicCardProps> = ({ song, variant = 'default' }) => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
   const getImageSrc = (s: Song) => {
     if (!s) return '';
+    
+    // First check for direct cover string
     if (s.cover && typeof s.cover === 'string' && /^https?:\/\//.test(s.cover)) return s.cover;
-    const imageFile = (s as any).ImageUrl || (s as any).imageUrl || (s as any).image || (s as any).cover;
+    
+    // Check for image array (from API like JioSaavn playlists)
+    const imageData = (s as any).image;
+    if (Array.isArray(imageData) && imageData.length > 0) {
+      const imageObj = imageData[imageData.length - 1];
+      if (imageObj && imageObj.url && typeof imageObj.url === 'string') {
+        if (/^https?:\/\//.test(imageObj.url)) return imageObj.url;
+      }
+    }
+    
+    // Check for image as direct URL string (from external-songs search)
+    if (typeof imageData === 'string' && /^https?:\/\//.test(imageData)) {
+      return imageData;
+    }
+    
+    // Check for direct ImageUrl or imageUrl properties
+    const imageFile = (s as any).ImageUrl || (s as any).imageUrl || (s as any).cover;
     if (!imageFile) return '';
+    
     let fileStr = String(imageFile).replace(/\\\\/g, '/');
     fileStr = fileStr.replace(/^\//, '');
     if (/^https?:\/\//.test(fileStr)) return fileStr;

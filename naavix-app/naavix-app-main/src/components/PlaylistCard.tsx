@@ -14,17 +14,38 @@ interface PlaylistCardProps {
 const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist }) => {
   const { playPlaylist } = usePlayer();
   const navigate = useNavigate();
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
+  
+  const getImageSrc = () => {
+    // Check for image array first
+    if (Array.isArray(playlist.image) && playlist.image.length > 0) {
+      const imageObj = playlist.image[playlist.image.length - 1];
+      if (imageObj && imageObj.url && /^https?:\/\//.test(imageObj.url)) {
+        return imageObj.url;
+      }
+    }
+    // Check for image as direct URL string
+    if (typeof playlist.image === 'string' && /^https?:\/\//.test(playlist.image)) {
+      return playlist.image;
+    }
+    // Fall back to ImageUrl
+    if (playlist.ImageUrl) {
+      if (/^https?:\/\//.test(playlist.ImageUrl)) return playlist.ImageUrl;
+      return `${BACKEND_URL}/uploads/${playlist.ImageUrl}`;
+    }
+    return '';
+  };
 
   return (
     <div
       className="group bg-card rounded-xl p-4 cursor-pointer music-card"
       onClick={() => {
-        navigate(`/playlist/${playlist._id}`);
+        navigate(`/playlist/${playlist.id}`);
       }}
     >
       <div className="relative mb-4">
         <img
-          src={`http://localhost:3000/uploads/${playlist.ImageUrl}`} // Assuming cover is a path to the image
+          src={getImageSrc()} // Assuming cover is a path to the image
           alt={playlist.title}
           className="w-full aspect-square rounded-lg object-cover shadow-lg"
         />

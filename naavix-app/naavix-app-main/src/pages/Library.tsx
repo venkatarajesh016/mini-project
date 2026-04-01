@@ -1,13 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LayoutGrid, List, Plus } from 'lucide-react';
-import { playlists, albums, artists } from '@/data/mockData';
+import { useNavigate } from 'react-router-dom';
+import { playlists as mockPlaylists, albums, artists, Playlist } from '@/data/mockData';
 import PlaylistCard from '@/components/PlaylistCard';
 import ArtistCard from '@/components/ArtistCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import axios from 'axios';
 
 const Library: React.FC = () => {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [playlists, setPlaylists] = useState<Playlist[]>(mockPlaylists);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch playlists from API
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/playlists');
+        const apiPlaylists = response.data.data;
+        
+        // Transform API playlists to match Playlist type
+        const transformedPlaylists: Playlist[] = apiPlaylists.map((playlist: any) => {
+          // Extract image URL from image array (API returns array with quality/url pairs)
+          let imageUrl = '';
+          if (Array.isArray(playlist.image) && playlist.image.length > 0) {
+            // Get the highest quality image (usually last in array)
+            imageUrl = playlist.image[playlist.image.length - 1]?.url || '';
+          } else if (typeof playlist.image === 'string') {
+            imageUrl = playlist.image;
+          }
+          
+          return {
+            id: playlist.id,
+            name: playlist.title,
+            description: playlist.description,
+            cover: imageUrl || 'https://via.placeholder.com/300x300?text=Playlist',
+            songs: playlist.songs || [],
+            songCount: playlist.songsCount || (playlist.songs?.length || 0),
+          };
+        });
+        
+        setPlaylists(transformedPlaylists);
+        console.log('Fetched playlists from API:', transformedPlaylists);
+      } catch (error) {
+        console.error('Error fetching playlists:', error);
+        // Fallback to mock data on error
+        setPlaylists(mockPlaylists);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlaylists();
+  }, []);
 
   return (
     <div className="min-h-screen pb-32 px-6 py-8">
@@ -56,10 +103,37 @@ const Library: React.FC = () => {
 
         {/* Playlists Tab */}
         <TabsContent value="playlists">
-          {viewMode === 'grid' ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p className="text-muted-foreground">Loading playlists...</p>
+              </div>
+            </div>
+          ) : playlists.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No playlists found</p>
+            </div>
+          ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {playlists.map((playlist) => (
-                <PlaylistCard key={playlist.id} playlist={playlist} />
+                <div
+                  key={playlist.id}
+                  className="group bg-card rounded-xl p-4 cursor-pointer music-card hover:shadow-lg transition-shadow"
+                  onClick={() => navigate(`/playlist/${playlist.id}`)}
+                >
+                  <div className="relative mb-4">
+                    <img
+                      src={playlist.cover}
+                      alt={playlist.name}
+                      className="w-full aspect-square rounded-lg object-cover shadow-lg"
+                    />
+                  </div>
+                  <h4 className="font-semibold truncate mb-1">{playlist.name}</h4>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {playlist.description}
+                  </p>
+                </div>
               ))}
             </div>
           ) : (
@@ -68,6 +142,7 @@ const Library: React.FC = () => {
                 <div
                   key={playlist.id}
                   className="flex items-center gap-4 p-4 rounded-xl hover:bg-card transition-colors cursor-pointer group"
+                  onClick={() => navigate(`/playlist/${playlist.id}`)}
                 >
                   <img
                     src={playlist.cover}

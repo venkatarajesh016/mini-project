@@ -33,6 +33,48 @@ const PLAYLIST_CONFIGS = [
     title: 'Study Focus',
     description: 'Concentration-friendly songs',
   },
+  {
+    id: 'love_songs_telugu',
+    query: 'love songs telugu',
+    title: 'Love Melodies',
+    description: 'Romantic Telugu love songs',
+  },
+  {
+    id: 'party_hits',
+    query: 'party songs telugu',
+    title: 'Party Hits',
+    description: 'Dance floor favorites',
+  },
+  {
+    id: 'devotional_telugu',
+    query: 'devotional telugu songs',
+    title: 'Divine Melodies',
+    description: 'Sacred and devotional classics',
+  },
+  {
+    id: 'indie_telugu',
+    query: 'indie telugu artists',
+    title: 'Indie Gems',
+    description: 'Independent Telugu underground hits',
+  },
+  {
+    id: 'movie_hits',
+    query: 'telugu movie hits songs',
+    title: 'Movie Blockbusters',
+    description: 'Hit songs from Telugu films',
+  },
+  {
+    id: 'classical_fusion',
+    query: 'telugu classical fusion',
+    title: 'Classical Fusion',
+    description: 'Where tradition meets modern',
+  },
+  {
+    id: 'night_drives',
+    query: 'night drive songs',
+    title: 'Night Vibes',
+    description: 'Perfect companion for late night drives',
+  },
 ];
 
 const fetchSongs = async (query) => {

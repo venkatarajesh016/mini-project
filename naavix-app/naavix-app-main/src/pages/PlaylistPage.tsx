@@ -19,32 +19,29 @@ const PlaylistPage: React.FC = () => {
     artist: '',
   });
 
-  const getAllSongsFromPlaylist = async(playlistId: string) => {
-    try{
-       await axios.get(`http://localhost:3000/getSongsByAlbum/${playlistId}`)
-        .then((response) => {
-          setSongs(response.data);
-          console.log("Fetched songs for playlist:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching songs for playlist:", error);
-        });
-    }
-    catch(error){
-      console.error("Error in getAllSongsFromPlaylist:", error);
-    }
-  };
-
   const getPlaylistDetails = async(playlistId: string) => {
     try{
-      await axios.get(`http://localhost:3000/getAlbumById/${playlistId}`)
+      await axios.get(`http://localhost:3000/api/playlists/${playlistId}`)
         .then((response) => {
-          const playlistData = response.data;
+          const playlistData = response.data.data;
+          // Extract songs from the playlist
+          setSongs(playlistData.songs || []);
+          
+          // Extract image URL from image array (API returns array with quality/url pairs)
+          let imageUrl = '';
+          if (Array.isArray(playlistData.image) && playlistData.image.length > 0) {
+            // Get the highest quality image (usually last in array)
+            imageUrl = playlistData.image[playlistData.image.length - 1]?.url || '';
+          } else if (typeof playlistData.image === 'string') {
+            imageUrl = playlistData.image;
+          }
+          
+          // Set playlist details
           setAlbumName({
-            title: playlistData.title,
-            ImageUrl: playlistData.ImageUrl,
-            genre: playlistData.genre,
-            artist: playlistData.artist,
+            title: playlistData.title || '',
+            ImageUrl: imageUrl,
+            genre: playlistData.description || '',
+            artist: 'Naavix Playlist',
           });
           console.log("Fetched playlist details:", playlistData);
         })
@@ -57,8 +54,9 @@ const PlaylistPage: React.FC = () => {
     }
   };
   useEffect(() => {
-    getAllSongsFromPlaylist(playlistId);
-    getPlaylistDetails(playlistId);
+    if (playlistId) {
+      getPlaylistDetails(playlistId);
+    }
   }, [playlistId]);
 
   return (
@@ -77,7 +75,13 @@ const PlaylistPage: React.FC = () => {
           {/* Cover Image */}
           <div className="relative">
             <img
-              src={`http://localhost:3000/uploads/${albumName.ImageUrl}`} // Assuming cover is a path to the image
+              src={
+                albumName.ImageUrl && /^https?:\/\//.test(albumName.ImageUrl)
+                  ? albumName.ImageUrl // Direct URL from external API
+                  : albumName.ImageUrl
+                  ? `http://localhost:3000/uploads/${albumName.ImageUrl}` // Local file path
+                  : 'https://via.placeholder.com/224' // Fallback placeholder
+              }
               alt={albumName.title}
               className="w-56 h-56 rounded-2xl object-cover shadow-2xl"
             />
@@ -87,14 +91,14 @@ const PlaylistPage: React.FC = () => {
           {/* Info */}
           <div className="flex-1">
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-2">Playlist</p>
-            <h1 className="text-5xl md:text-7xl font-bold mb-4">{albumName.genre}</h1>
-            <p className="text-muted-foreground mb-4">{albumName.artist}</p>
+            <h1 className="text-5xl md:text-7xl font-bold mb-4">{albumName.title}</h1>
+            <p className="text-muted-foreground mb-4">{albumName.genre}</p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-foreground font-medium">Naavix</span>
+              <span className="text-foreground font-medium">{albumName.artist}</span>
               <span>•</span>
-              <span> songs</span>
+              <span>{songs.length} songs</span>
               <span>•</span>
-              <span>About 45 min</span>
+              <span>About {Math.round(songs.reduce((sum, song) => sum + (typeof song.duration === 'number' ? song.duration : 0), 0) / 60)} min</span>
             </div>
           </div>
         </div>
@@ -124,6 +128,42 @@ const PlaylistPage: React.FC = () => {
 
       {/* Song List */}
       <div className="px-6">
+        {/* Playlist Playing Status */}
+        {songs.length > 0 && (
+          <div className="mb-6 p-4 rounded-lg bg-primary/10 border border-primary/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-primary font-semibold mb-1">Now Playing</p>
+                <p className="text-foreground font-medium">{currentSong ? currentSong.title : 'Select a song'}</p>
+                {currentSong && songs.length > 0 && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Song {songs.findIndex(s => (s?.id ?? s?._id) === (currentSong?.id ?? currentSong?._id)) + 1} of {songs.length}
+                  </p>
+                )}
+              </div>
+              <div className="text-right">
+                <div className="w-20 h-20 rounded-lg overflow-hidden shadow-lg">
+                  {currentSong && (
+                    <img
+                      src={
+                        Array.isArray((currentSong as any).image) && (currentSong as any).image.length > 0
+                          ? (currentSong as any).image[(currentSong as any).image.length - 1]?.url
+                          : typeof (currentSong as any).image === 'string' && /^https?:\/\//.test((currentSong as any).image)
+                          ? (currentSong as any).image
+                          : (currentSong as any).ImageUrl
+                          ? `http://localhost:3000/uploads/${(currentSong as any).ImageUrl}`
+                          : (currentSong as any).cover || ''
+                      }
+                      alt={currentSong.title}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="grid grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[40px_1fr_1fr_80px] gap-4 px-4 py-2 text-sm text-muted-foreground border-b border-border">
           <span>#</span>
@@ -137,13 +177,20 @@ const PlaylistPage: React.FC = () => {
           {songs.map((song, index) => {
             const getId = (s: any) => s?.id ?? s?._id;
             const isCurrentSong = getId(currentSong) === getId(song);
+            const currentSongIndex = songs.findIndex(s => getId(currentSong) === getId(s));
+            const isPlayedSong = currentSongIndex !== -1 && index < currentSongIndex;
+            const isUpcomingSong = currentSongIndex !== -1 && index > currentSongIndex;
             
             return (
               <div
                 key={getId(song) || index}
                 onClick={() => playSong(song)}
-                className={`grid grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[40px_1fr_1fr_80px] gap-4 items-center px-4 py-3 rounded-lg cursor-pointer group transition-colors ${
-                  isCurrentSong && isPlaying ? 'bg-gradient-naavix-soft' : 'hover:bg-card'
+                className={`grid grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[40px_1fr_1fr_80px] gap-4 items-center px-4 py-3 rounded-lg cursor-pointer group transition-all ${
+                  isCurrentSong && isPlaying 
+                    ? 'bg-gradient-naavix-soft border-l-4 border-primary' 
+                    : isPlayedSong 
+                    ? 'hover:bg-card opacity-60' 
+                    : 'hover:bg-card'
                 }`}
               >
                 {/* Number / Play Icon */}
@@ -163,7 +210,7 @@ const PlaylistPage: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      <span className={`group-hover:hidden ${isCurrentSong ? 'text-primary' : 'text-muted-foreground'}`}>
+                      <span className={`group-hover:hidden text-xs font-semibold ${isCurrentSong ? 'text-primary' : isPlayedSong ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>
                         {index + 1}
                       </span>
                       <Play className="w-4 h-4 hidden group-hover:block text-foreground fill-current" />
@@ -171,23 +218,44 @@ const PlaylistPage: React.FC = () => {
                   )}
                 </div>
 
+                {/* Status Badge */}
+                {(isCurrentSong || isPlayedSong || isUpcomingSong) && (
+                  <div className="absolute left-14 -top-2 px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap pointer-events-none">
+                    {isCurrentSong ? (
+                      <span className="bg-primary/20 text-primary px-2 py-1 rounded-full text-xs">● Playing</span>
+                    ) : isPlayedSong ? (
+                      <span className="bg-muted/50 text-muted-foreground text-xs px-2 py-1 rounded-full">✓ Played</span>
+                    ) : isUpcomingSong ? (
+                      <span className="bg-secondary/20 text-secondary text-xs px-2 py-1 rounded-full">↓ Next</span>
+                    ) : null}
+                  </div>
+                )}
+
                 {/* Song Info */}
                 <div className="flex items-center gap-3 min-w-0">
                   <img
-                    src={`http://localhost:3000/uploads/${song.ImageUrl}`} // Assuming cover is a path to the image
+                    src={
+                      Array.isArray((song as any).image) && (song as any).image.length > 0
+                        ? (song as any).image[(song as any).image.length - 1]?.url
+                        : typeof (song as any).image === 'string' && /^https?:\/\//.test((song as any).image)
+                        ? (song as any).image
+                        : (song as any).ImageUrl
+                        ? `http://localhost:3000/uploads/${(song as any).ImageUrl}`
+                        : (song as any).cover || ''
+                    }
                     alt={song.title}
-                    className="w-10 h-10 rounded-md object-cover"
+                    className={`w-10 h-10 rounded-md object-cover ${isPlayedSong ? 'opacity-50' : ''}`}
                   />
                   <div className="min-w-0">
-                    <h4 className={`font-medium truncate ${isCurrentSong ? 'text-primary' : ''}`}>
+                    <h4 className={`font-medium truncate ${isCurrentSong ? 'text-primary' : isPlayedSong ? 'text-muted-foreground' : ''}`}>
                       {song.title}
                     </h4>
-                    <p className="text-sm text-muted-foreground truncate">{albumName.artist}</p>
+                    <p className={`text-sm truncate ${isPlayedSong ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>{albumName.artist}</p>
                   </div>
                 </div>
 
                 {/* Album */}
-                <span className="hidden md:block text-sm text-muted-foreground truncate">
+                <span className={`hidden md:block text-sm truncate ${isPlayedSong ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>
                   {albumName.title}
                 </span>
 
@@ -200,7 +268,7 @@ const PlaylistPage: React.FC = () => {
                   >
                     <Heart className={`w-4 h-4 ${song.isLiked ? 'fill-current' : ''}`} />
                   </button>
-                  <span className="text-sm text-muted-foreground">{song.duration}</span>
+                  <span className={`text-sm ${isPlayedSong ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>{song.duration}</span>
                 </div>
               </div>
             );

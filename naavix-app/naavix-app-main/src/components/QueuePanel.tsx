@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Play, Trash2, GripVertical, Plus, Loader, AlertCircle, Zap, Wifi, WifiOff } from 'lucide-react';
+import { X, Play, Trash2, Plus, Loader, AlertCircle, Zap, Wifi, WifiOff } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { Song } from '@/data/mockData';
 
@@ -788,43 +788,42 @@ const QueuePanel: React.FC = () => {
                   <p className="text-sm">Queue is empty</p>
                 </div>
               ) : (
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {filteredQueue.slice(0, 3).map((song, idx) => (
                     <li
                       key={`queue-${(song as any)._queueId || song._id || song.id || idx}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors group cursor-pointer text-sm"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group cursor-pointer"
                       onClick={() => handleQueueSongClick(song)}
                     >
-                    <div className="text-muted-foreground group-hover:hidden">
-                      <GripVertical className="w-4 h-4" />
-                    </div>
-                    <div className="hidden group-hover:flex items-center justify-center w-4">
-                      <Play className="w-4 h-4 text-primary" />
-                    </div>
-                    <img
-                      src={normalizeImageUrl(song.cover)}
-                      alt={song.title}
-                      className="w-10 h-10 rounded-lg object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = PLACEHOLDER_IMAGE;
-                      }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium truncate text-sm">{song.title}</h4>
-                      <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeFromQueue(song.id);
-                      }}
-                      className="p-1 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                      <div className="relative flex-shrink-0">
+                        <img
+                          src={normalizeImageUrl(song.cover)}
+                          alt={song.title}
+                          className="w-16 h-16 rounded-lg object-cover shadow-md"
+                          onError={(e) => {
+                            e.currentTarget.src = PLACEHOLDER_IMAGE;
+                          }}
+                        />
+                        <div className="absolute inset-0 rounded-lg bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Play className="w-5 h-5 text-white fill-white" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium truncate text-sm">{song.title}</h4>
+                        <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFromQueue(song.id);
+                        }}
+                        className="p-1.5 text-muted-foreground hover:text-destructive rounded opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               );
             })()}
           </div>
@@ -854,22 +853,27 @@ const QueuePanel: React.FC = () => {
               )}
 
               {recommendations.length > 0 && (
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {recommendations.map((song, idx) => (
                     <li
                       key={`${song.id}-${idx}`}
-                      className="p-2 rounded-lg hover:bg-muted transition-colors group cursor-pointer"
+                      className="p-3 rounded-lg hover:bg-muted transition-colors group cursor-pointer"
                       onClick={() => handlePlayRecommendation(song)}
                     >
-                      <div className="flex items-start gap-2">
-                        <img
-                          src={normalizeImageUrl(song.cover)}
-                          alt={song.title}
-                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
-                          onError={(e) => {
-                            e.currentTarget.src = PLACEHOLDER_IMAGE;
-                          }}
-                        />
+                      <div className="flex items-start gap-3">
+                        <div className="relative flex-shrink-0">
+                          <img
+                            src={normalizeImageUrl(song.cover)}
+                            alt={song.title}
+                            className="w-16 h-16 rounded-lg object-cover shadow-md"
+                            onError={(e) => {
+                              e.currentTarget.src = PLACEHOLDER_IMAGE;
+                            }}
+                          />
+                          <div className="absolute inset-0 rounded-lg bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Play className="w-5 h-5 text-white fill-white" />
+                          </div>
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium truncate text-sm">{song.title}</h4>

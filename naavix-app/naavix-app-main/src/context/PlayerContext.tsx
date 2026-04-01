@@ -258,7 +258,49 @@ export const PlayerProvider: React.FC<{ children: ReactNode }> = ({
       if (!audioUrlTrimmed || audioUrlTrimmed === 'nan' || audioUrlTrimmed === 'undefined' || audioUrlTrimmed.includes('?text=') || audioUrlTrimmed.includes('placeholder')) {
         console.warn('⚠️ audioUrl is a placeholder or invalid:', audioUrlTrimmed);
       } else {
-        audioUrl = audioUrlTrimmed;
+        // Handle relative proxy URLs - make them absolute for validation
+        if (audioUrlTrimmed.startsWith('/api/proxy-audio')) {
+          const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
+          audioUrl = `${backendUrl}${audioUrlTrimmed}`;
+          console.log('🎵 Playing from backend proxy:', song.title);
+        } else {
+          audioUrl = audioUrlTrimmed;
+        }
+        
+        // Safely log URL hostname only if it's a valid URL
+        try {
+          const urlObj = new URL(audioUrl);
+          console.log('🎵 Playing from external URL:', song.title, '- URL Type:', urlObj.hostname);
+        } catch (e) {
+          console.log('🎵 Playing from external URL:', song.title, '- URL:', audioUrl.substring(0, 80));
+        }
+      }
+    } else if ('url' in song && song.url && typeof song.url === 'string') {
+      // Handle direct url property from external APIs (e.g., JioSaavn API responses)
+      let urlTrimmed = String(song.url).trim();
+      
+      // IMPORTANT: Never allow JioSaavn page URLs to be played directly
+      if (urlTrimmed.includes('jiosaavn.com/song/') && !urlTrimmed.includes('/proxy-audio')) {
+        console.error('❌ ERROR: JioSaavn page URL detected in url field (not audio stream):', urlTrimmed.substring(0, 80));
+        console.error('   This indicates JioSaavn extraction failed. Cannot play HTML page as audio.');
+        setCurrentSong(song);
+        setIsPlaying(false);
+        alert('❌ Cannot play this JioSaavn song - audio extraction failed.\n\nMake sure the backend service is running and the song exists on JioSaavn.');
+        return;
+      }
+      
+      // Skip placeholder URLs and invalid values
+      if (!urlTrimmed || urlTrimmed === 'nan' || urlTrimmed === 'undefined' || urlTrimmed.includes('?text=') || urlTrimmed.includes('placeholder')) {
+        console.warn('⚠️ url is a placeholder or invalid:', urlTrimmed);
+      } else {
+        // Handle relative proxy URLs - make them absolute for validation
+        if (urlTrimmed.startsWith('/api/proxy-audio')) {
+          const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
+          audioUrl = `${backendUrl}${urlTrimmed}`;
+          console.log('🎵 Playing from backend proxy:', song.title);
+        } else {
+          audioUrl = urlTrimmed;
+        }
         
         // Safely log URL hostname only if it's a valid URL
         try {

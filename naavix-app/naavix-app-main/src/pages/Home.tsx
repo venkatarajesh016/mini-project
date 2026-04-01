@@ -78,7 +78,7 @@ const Home: React.FC = () => {
         <section>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {songs.map((song) => (
-              <MusicCard key={song._id} song={song} variant="compact" />
+              <MusicCard key={song._id || song.id} song={song} variant="compact" />
             ))}
           </div>
         </section>
@@ -130,19 +130,27 @@ const Home: React.FC = () => {
             <h2 className="text-2xl font-bold">Top Albums</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {albums.slice(0, 10).map((album) => (
-              <div key={album.id} className="group bg-card rounded-xl p-4 cursor-pointer music-card">
-                <div className="relative mb-4">
-                  <img
-                    src={album.image}
-                    alt={album.title}
-                    className="w-full aspect-square rounded-lg object-cover shadow-lg"
-                  />
+            {albums.slice(0, 10).map((album) => {
+              const getAlbumImage = () => {
+                if (Array.isArray(album.image) && album.image.length > 0) {
+                  return album.image[album.image.length - 1]?.url || album.image[0]?.url || '';
+                }
+                return typeof album.image === 'string' ? album.image : '';
+              };
+              return (
+                <div key={album.id} className="group bg-card rounded-xl p-4 cursor-pointer music-card">
+                  <div className="relative mb-4">
+                    <img
+                      src={getAlbumImage()}
+                      alt={typeof album.title === 'object' ? album.title.name : album.title}
+                      className="w-full aspect-square rounded-lg object-cover shadow-lg"
+                    />
+                  </div>
+                  <h4 className="font-semibold truncate mb-1">{typeof album.title === 'object' ? album.title.name : album.title}</h4>
+                  <p className="text-sm text-muted-foreground truncate">{album.artist} • {album.songsCount} songs</p>
                 </div>
-                <h4 className="font-semibold truncate mb-1">{album.title}</h4>
-                <p className="text-sm text-muted-foreground truncate">{album.artist} • {album.songsCount} songs</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       </div>
