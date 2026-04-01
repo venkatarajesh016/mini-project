@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import songRoutes from './routes/songs.Routes.js';
 import albumRoutes from './routes/album.Routes.js';
 import recommendationRoutes from './routes/recommendation.routes.js';
+import homeRoutes from './routes/home.routes.js';
 
 const app = express();
 dotenv.config();
@@ -42,6 +43,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(songRoutes);
 app.use(albumRoutes);
 app.use('/api/recommend', recommendationRoutes);
+app.use(homeRoutes);
 
 // Debug endpoint to check FileUrl and audio file availability
 app.get('/debug/songs', async (req, res) => {

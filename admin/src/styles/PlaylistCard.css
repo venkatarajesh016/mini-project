@@ -1,0 +1,126 @@
+.playlist-card {
+  flex-shrink: 0;
+  width: 200px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.playlist-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.playlist-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.playlist-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.playlist-card:hover .playlist-image {
+  transform: scale(1.05);
+}
+
+.playlist-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1db954, #1ed760);
+  font-size: 3rem;
+  color: #fff;
+}
+
+.playlist-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.playlist-card:hover .playlist-overlay {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.play-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1db954;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.play-button:hover {
+  background: #1ed760;
+  transform: scale(1.1);
+}
+
+.playlist-info {
+  padding: 0;
+}
+
+.playlist-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-description {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 6px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-count {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 768px) {
+  .playlist-card {
+    width: 160px;
+  }
+
+  .playlist-title {
+    font-size: 0.9rem;
+  }
+
+  .playlist-description {
+    font-size: 0.75rem;
+  }
+}
