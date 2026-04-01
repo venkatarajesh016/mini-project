@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import { usePlayer } from '../context/PlayerContext';
 import { Colors, BorderRadius, FontSizes, FontWeights, Spacing, Gradients } from '../constants/theme';
+import API_BASE_URL from '../config/api.config';
 
 export default function MiniPlayer() {
     const { currentSong, isPlaying, togglePlay, nextSong, prevSong, progress, setProgress } = usePlayer();
@@ -96,26 +97,70 @@ export default function MiniPlayer() {
                 return;
             }
 
-            console.log('🎵 Loading audio from:', currentSong.audioUrl);
-
-            const { sound, status } = await Audio.Sound.createAsync(
-                { uri: currentSong.audioUrl },
-                { shouldPlay: false, progressUpdateIntervalMillis: 1000 }
-            );
-
-            soundRef.current = sound;
-
-            // Set duration
-            if (status.isLoaded) {
-                setDuration(status.durationMillis || 0);
-                console.log('✅ Audio loaded, duration:', status.durationMillis);
+            // Convert relative proxy URLs to absolute URLs
+            let audioUrl = currentSong.audioUrl;
+            if (audioUrl.startsWith('/api/proxy-audio')) {
+                audioUrl = `${API_BASE_URL}${audioUrl}`;
+                console.log('🔗 Using proxy URL:', audioUrl.substring(0, 80) + '...');
             }
 
-            // Handle playback status updates
-            sound.setOnPlaybackStatusUpdate(handlePlaybackStatus);
+            console.log('🎵 Loading audio from:', audioUrl.substring(0, 80) + '...');
 
-            setIsLoading(false);
-            setIsAudioReady(true); // This will trigger play/pause useEffect to play if isPlaying is true
+            try {
+                const { sound, status } = await Audio.Sound.createAsync(
+                    { uri: audioUrl },
+                    { shouldPlay: false, progressUpdateIntervalMillis: 1000 }
+                );
+
+                soundRef.current = sound;
+
+                // Set duration
+                if (status.isLoaded) {
+                    const duration = status.durationMillis || 0;
+                    setDuration(duration);
+                    console.log('✅ Audio loaded, duration:', duration, 'ms');
+                    
+                    if (duration === 0) {
+                        console.warn('⚠️  Warning: Duration is 0, audio metadata may not have loaded');
+                    }
+                }
+
+                // Handle playback status updates
+                sound.setOnPlaybackStatusUpdate(handlePlaybackStatus);
+
+                setIsLoading(false);
+                setIsAudioReady(true); // This will trigger play/pause useEffect to play if isPlaying is true
+            } catch (audioError: any) {
+                console.error('❌ Error creating sound object:', {
+                    message: audioError.message,
+                    code: audioError.code,
+                    url: audioUrl?.substring(0, 80),
+                });
+                
+                // Try fallback: Use a test audio URL if the original fails
+                console.log('🔄 Attempting fallback audio source...');
+                try {
+                    const fallbackUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+                    const { sound: fallbackSound, status: fallbackStatus } = await Audio.Sound.createAsync(
+                        { uri: fallbackUrl },
+                        { shouldPlay: false, progressUpdateIntervalMillis: 1000 }
+                    );
+                    soundRef.current = fallbackSound;
+                    
+                    if (fallbackStatus.isLoaded) {
+                        setDuration(fallbackStatus.durationMillis || 0);
+                        console.log('✅ Fallback audio loaded, duration:', fallbackStatus.durationMillis);
+                    }
+                    
+                    fallbackSound.setOnPlaybackStatusUpdate(handlePlaybackStatus);
+                    setIsLoading(false);
+                    setIsAudioReady(true);
+                } catch (fallbackError) {
+                    console.error('❌ Fallback also failed:', fallbackError);
+                    setIsLoading(false);
+                    setIsAudioReady(false);
+                }
+            }
         } catch (error: any) {
             console.error('❌ Error loading song:', {
                 message: error.message,

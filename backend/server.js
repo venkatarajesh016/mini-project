@@ -9,6 +9,7 @@ import recommendationRoutes from './routes/recommendation.routes.js';
 import homeRoutes from './routes/home.routes.js';
 import playlistRoutes from './routes/playlists.js';
 import albumsRoutes from './routes/albums.js';
+import audioProxyRoutes from './routes/audioProxy.routes.js';
 
 console.log('[server] Routes imported successfully');
 console.log('[server] playlistRoutes:', typeof playlistRoutes, playlistRoutes? 'defined':'undefined');
@@ -73,6 +74,7 @@ console.log('[server] About to register /api/playlists route');
 app.use('/api/playlists', playlistRoutes);
 console.log('[server] Registered /api/playlists route');
 app.use('/api/albums', albumsRoutes);
+app.use('/api', audioProxyRoutes);
 console.log('[server] All routes registered');
 
 // Debug endpoint to check FileUrl and audio file availability

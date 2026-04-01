@@ -76,6 +76,14 @@ export const normalizeSong = (song, sourceType = 'local') => {
       audioUrl = null; // Must be null, never a page URL
     }
     
+    // Wrap audio URL through backend proxy to avoid CORS issues
+    // The proxy will handle adding appropriate headers
+    if (audioUrl) {
+      const encodedUrl = encodeURIComponent(audioUrl);
+      audioUrl = `/api/proxy-audio?url=${encodedUrl}`;
+      console.log(`🔄 Wrapped audio URL with proxy: ${audioUrl.substring(0, 80)}...`);
+    }
+    
     return {
       title: song.name || song.title || '',
       artist: song.primaryArtists || song.artist || '',
