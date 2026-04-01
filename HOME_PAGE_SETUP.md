@@ -1,4 +1,5 @@
-# Spotify-like Music Streaming App - Home Page Setup
+cd backend
+npm start# Spotify-like Music Streaming App - Home Page Setup
 
 ## Backend Setup
 

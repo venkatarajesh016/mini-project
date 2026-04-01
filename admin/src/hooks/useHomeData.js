@@ -28,12 +28,13 @@ export const useHomeData = () => {
         if (!response.ok) throw new Error('Failed to fetch home data');
 
         const result = await response.json();
-        setData(result);
+        const homeData = result.data || result;
+        setData(homeData);
 
         localStorage.setItem(
           CACHE_KEY,
           JSON.stringify({
-            data: result,
+            data: homeData,
             timestamp: Date.now(),
           })
         );

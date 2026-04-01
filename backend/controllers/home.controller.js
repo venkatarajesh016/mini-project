@@ -1,23 +1,37 @@
-import Song from '../models/songs.model.js';
 import { generatePlaylists, generateAlbums } from '../services/homeService.js';
 
 export const getHomePageData = async (req, res) => {
   try {
-    const songs = await Song.find().limit(200).lean();
+    console.log('Fetching home page data from JioSaavn API...');
 
-    if (!songs.length) {
-      return res.status(404).json({ error: 'No songs found' });
+    // Fetch playlists and albums directly from JioSaavn
+    const [playlists, albums] = await Promise.all([
+      generatePlaylists(),
+      generateAlbums(),
+    ]);
+
+    if (!playlists || playlists.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No playlists available from JioSaavn',
+        data: { playlists: [], albums: [] },
+      });
     }
 
-    const playlists = generatePlaylists(songs);
-    const albums = generateAlbums(songs);
-
     res.json({
-      playlists,
-      albums,
+      success: true,
+      message: 'Home page data fetched from JioSaavn API',
+      data: {
+        playlists,
+        albums,
+      },
     });
   } catch (error) {
     console.error('Error fetching home data:', error);
-    res.status(500).json({ error: 'Failed to fetch home data' });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch home data',
+      error: error.message,
+    });
   }
 };
