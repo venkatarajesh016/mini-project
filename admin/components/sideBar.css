@@ -1,0 +1,30 @@
+.sidebar{
+    width: 200px;
+    height: 98vh;
+    background-color: #0d960d;
+    padding: 10px 0px;
+    position: fixed;
+}
+.list{
+    margin-left: 15px;
+    margin-right: 5px;
+}
+.sidebar-links{
+    padding: 5px 0px;
+    background-color: #fff;
+    margin-left: 2.0rem;
+    border: #fff 2px solid;
+    border-radius: 6px;
+    box-shadow: #82b082 0px 4px 8px;
+    margin-top: 20px;
+}
+
+a{
+    text-decoration: none;
+    color: #141313;
+}
+
+i{
+    margin-right: 10px;
+    margin-left: 2px;
+}
