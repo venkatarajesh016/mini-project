@@ -7,6 +7,12 @@ import songRoutes from './routes/songs.Routes.js';
 import albumRoutes from './routes/album.Routes.js';
 import recommendationRoutes from './routes/recommendation.routes.js';
 import homeRoutes from './routes/home.routes.js';
+import playlistRoutes from './routes/playlists.js';
+import albumsRoutes from './routes/albums.js';
+
+console.log('[server] Routes imported successfully');
+console.log('[server] playlistRoutes:', typeof playlistRoutes, playlistRoutes? 'defined':'undefined');
+console.log('[server] albumsRoutes:', typeof albumsRoutes, albumsRoutes? 'defined':'undefined');
 
 const app = express();
 dotenv.config();
@@ -24,9 +30,15 @@ const corsOptions = {
     'http://127.0.0.1:3000',
     'http://127.0.0.1:8081',
     'http://127.0.0.1:8082',
-    'http://10.127.165.141:3000', // Your machine WiFi IP (for mobile dev)
+    'http://10.57.42.141:3000', // Your machine WiFi IP (for mobile dev)
+    'http://10.57.42.141:8081',
+    'http://10.57.42.141:8082',
+    'http://10.127.165.141:3000', // Old/fallback IP
     'http://10.127.165.141:8081',
     'http://10.127.165.141:8082',
+    'http://192.168.137.242:3000', // Alternative local IP
+    'http://192.168.137.242:8081',
+    'http://0.0.0.0:3000', // All interfaces
     'http://10.0.2.2:3000', // Android Emulator
     'http://10.0.2.2:8081',
   ],
@@ -40,10 +52,28 @@ app.use(cors(corsOptions));
 app.use("/uploads", express.static("uploads"));
 app.use(express.urlencoded({ extended: true }));
 
+// Global logging middleware
+app.use((req, res, next) => {
+  console.log(`[EXPRESS] ${req.method} ${req.path}`);
+  next();
+});
+
 app.use(songRoutes);
 app.use(albumRoutes);
 app.use('/api/recommend', recommendationRoutes);
 app.use(homeRoutes);
+
+// Test endpoint to verify routing
+app.get('/test', (req, res) => {
+  console.log('[server] /test endpoint called');
+  res.json({ message: 'Test endpoint works' });
+});
+
+console.log('[server] About to register /api/playlists route');
+app.use('/api/playlists', playlistRoutes);
+console.log('[server] Registered /api/playlists route');
+app.use('/api/albums', albumsRoutes);
+console.log('[server] All routes registered');
 
 // Debug endpoint to check FileUrl and audio file availability
 app.get('/debug/songs', async (req, res) => {

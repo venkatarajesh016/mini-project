@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { teluguSongs, artists, albums } from '@/data/mockData';
 import MusicCard from '@/components/MusicCard';
 import PlaylistCard from '@/components/PlaylistCard';
-import ArtistCard from '@/components/ArtistCard';
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -15,28 +13,50 @@ const Home: React.FC = () => {
   };
   const [songs, setSongs] = useState([]);
   const [playlists, setPlaylists] = useState([]);
+  const [albums, setAlbums] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
     useEffect(() => {
-      axios.get("http://localhost:3000/getSongs")
-        .then((response) => {
-          setSongs(response.data.slice(0, 6));
-          console.log("Fetched songs:", response.data[0]?.ImageUrl || "No Image URL found");
-        })
-        .catch((error) => {
-          console.error("Error fetching songs:", error);
-        });
-    }, []);
-
-    useEffect(() => {
-      axios.get("http://localhost:3000/getAllAlbums")
-        .then((response) => {
-          setPlaylists(response.data);
-          console.log("Fetched playlists:", response.data);
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          console.log('Fetching from:', `${API_URL}/api/playlists`);
+          
+          // Fetch playlists
+          const playlistResponse = await axios.get(`${API_URL}/api/playlists`, {
+            timeout: 10000,
+          });
+          const playlistsData = playlistResponse.data.data || [];
+          setPlaylists(playlistsData);
+          
+          // Set first playlist songs
+          if (playlistsData.length > 0) {
+            setSongs(playlistsData[0].songs?.slice(0, 6) || []);
+          }
+          
+          // Fetch albums
+          const albumResponse = await axios.get(`${API_URL}/api/albums`, {
+            timeout: 10000,
+          });
+          const albumsData = albumResponse.data.data || [];
+          setAlbums(albumsData);
+          
+          console.log("Fetched playlists:", playlistsData);
+          console.log("Fetched albums:", albumsData);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          setError(error.message || 'Failed to fetch data');
+        } finally {
+          setLoading(false);
         }
-        )
-        .catch((error) => {
-          console.error("Error fetching playlists:", error);
-        });
+      };
+      
+      fetchData();
     }, []);
   const recommendedSongs = songs.slice(2, 8);
   const trendingSongs = songs.slice(4, 10);
@@ -71,11 +91,22 @@ const Home: React.FC = () => {
               See all <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {playlists.slice(0, 5).map((playlist) => (
-              <PlaylistCard key={playlist._id} playlist={playlist} />
-            ))}
-          </div>
+          {error ? (
+            <div className="bg-destructive/10 border border-destructive/50 rounded-lg p-4 mb-4">
+              <p className="text-destructive text-sm">⚠️ {error}</p>
+              <p className="text-xs text-muted-foreground mt-2">Make sure backend is running on port 3000. Set REACT_APP_API_URL environment variable if needed.</p>
+            </div>
+          ) : loading ? (
+            <p className="text-muted-foreground">Loading playlists...</p>
+          ) : playlists.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {playlists.slice(0, 5).map((playlist) => (
+                <PlaylistCard key={playlist.id || playlist._id} playlist={playlist} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">No playlists available</p>
+          )}
         </section>
 
         {/* Recommended for You */}
@@ -93,62 +124,23 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* Popular Artists */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Popular Artists</h2>
-            <Link to="/library" className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
-              See all <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {artists.map((artist) => (
-              <ArtistCard key={artist.id} artist={artist} />
-            ))}
-          </div>
-        </section>
-
-        {/* Trending Now */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Trending Now 🔥</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {trendingSongs.map((song) => (
-              <MusicCard key={song._id || song.id} song={song} />
-            ))}
-          </div>
-        </section>
-
-        {/* New Releases */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">New Releases</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {newReleases.map((song) => (
-              <MusicCard key={song._id || song.id} song={song} />
-            ))}
-          </div>
-        </section>
-
         {/* Top Albums */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Top Albums</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {albums.map((album) => (
+            {albums.slice(0, 10).map((album) => (
               <div key={album.id} className="group bg-card rounded-xl p-4 cursor-pointer music-card">
                 <div className="relative mb-4">
                   <img
-                    src={album.cover}
-                    alt={album.name}
+                    src={album.image}
+                    alt={album.title}
                     className="w-full aspect-square rounded-lg object-cover shadow-lg"
                   />
                 </div>
-                <h4 className="font-semibold truncate mb-1">{album.name}</h4>
-                <p className="text-sm text-muted-foreground truncate">{album.artist} • {album.year}</p>
+                <h4 className="font-semibold truncate mb-1">{album.title}</h4>
+                <p className="text-sm text-muted-foreground truncate">{album.artist} • {album.songsCount} songs</p>
               </div>
             ))}
           </div>

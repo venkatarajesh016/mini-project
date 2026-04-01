@@ -1,0 +1,6 @@
+[2026-04-01T13:48:22.275Z] [playlistController] getAllPlaylists called
+[2026-04-01T13:48:22.277Z] [playlistController] Starting getPlaylists call...
+[2026-04-01T13:48:22.874Z] [playlistController] Received 4 playlists
+[2026-04-01T13:48:41.924Z] [playlistController] getAllPlaylists called
+[2026-04-01T13:48:41.925Z] [playlistController] Starting getPlaylists call...
+[2026-04-01T13:48:42.444Z] [playlistController] Received 4 playlists
