@@ -1,0 +1,271 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Naavix Design System - Inspired by logo gradient: Orange → Magenta → Purple */
+
+@layer base {
+  :root {
+    /* Dark theme by default */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary - Magenta/Pink from logo */
+    --primary: 322 93% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Deep surface */
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
+
+    /* Accent - Orange from logo */
+    --accent: 32 95% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 322 93% 53%;
+
+    --radius: 0.75rem;
+
+    /* Custom Naavix colors */
+    --naavix-orange: 32 95% 55%;
+    --naavix-gold: 45 100% 55%;
+    --naavix-magenta: 322 93% 53%;
+    --naavix-pink: 340 82% 60%;
+    --naavix-purple: 270 70% 45%;
+    --naavix-deep-purple: 265 85% 35%;
+    
+    /* Gradient definitions */
+    --gradient-primary: linear-gradient(135deg, hsl(32, 95%, 55%) 0%, hsl(322, 93%, 53%) 50%, hsl(270, 70%, 45%) 100%);
+    --gradient-secondary: linear-gradient(90deg, hsl(45, 100%, 55%) 0%, hsl(32, 95%, 55%) 50%, hsl(322, 93%, 53%) 100%);
+    --gradient-glow: linear-gradient(135deg, hsl(32, 95%, 55%, 0.3) 0%, hsl(322, 93%, 53%, 0.3) 50%, hsl(270, 70%, 45%, 0.3) 100%);
+    
+    /* Glass effect */
+    --glass-bg: hsla(0, 0%, 8%, 0.7);
+    --glass-border: hsla(0, 0%, 100%, 0.08);
+    
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsla(322, 93%, 53%, 0.3);
+    --shadow-card: 0 8px 32px hsla(0, 0%, 0%, 0.4);
+    --shadow-player: 0 -8px 32px hsla(0, 0%, 0%, 0.5);
+
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 322 93% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 322 93% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+@layer components {
+  /* Gradient text */
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Gradient button */
+  .btn-gradient {
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px hsla(322, 93%, 53%, 0.3);
+  }
+  
+  .btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px hsla(322, 93%, 53%, 0.5);
+  }
+  
+  /* Glass card */
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+  }
+  
+  /* Glow effect */
+  .glow-primary {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  /* Music card hover */
+  .music-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .music-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px hsla(0, 0%, 0%, 0.5);
+  }
+  
+  .music-card:hover .play-overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .play-overlay {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s ease;
+  }
+  
+  /* Sidebar item */
+  .sidebar-item {
+    transition: all 0.2s ease;
+  }
+  
+  .sidebar-item:hover {
+    background: hsl(var(--muted));
+  }
+  
+  .sidebar-item.active {
+    background: var(--gradient-primary);
+    color: white;
+  }
+  
+  /* Progress bar gradient */
+  .progress-gradient {
+    background: var(--gradient-primary);
+  }
+  
+  /* Visualizer bars */
+  .visualizer-bar {
+    background: var(--gradient-primary);
+    animation: visualize 0.5s ease infinite alternate;
+  }
+  
+  @keyframes visualize {
+    0% { transform: scaleY(0.2); }
+    100% { transform: scaleY(1); }
+  }
+  
+  /* Entrance animations */
+  .fade-in-up {
+    animation: fadeInUp 0.6s ease forwards;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .fade-in-left {
+    animation: fadeInLeft 0.5s ease forwards;
+  }
+  
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  /* Pulse animation for now playing */
+  .pulse-ring {
+    animation: pulseRing 2s ease infinite;
+  }
+  
+  @keyframes pulseRing {
+    0% {
+      box-shadow: 0 0 0 0 hsla(322, 93%, 53%, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 15px hsla(322, 93%, 53%, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 hsla(322, 93%, 53%, 0);
+    }
+  }
+  
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Queue slide panel */
+  .queue-panel {
+    animation: slideInRight 0.3s ease forwards;
+  }
+  
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+}
