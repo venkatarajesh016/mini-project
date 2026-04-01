@@ -1,0 +1,1 @@
+(.venv) C:\Users\hp\OneDrive\Desktop\mini project\spotify\ml-services>python3 -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
