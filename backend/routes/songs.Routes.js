@@ -4,10 +4,8 @@ import {
   deleteSong,
   getSongsByAlbum,
   getTopSongs,
-  getTrendingTeluguSongsTest
 } from "../controllers/song.controller.js";
-import { getExternalSongs, getTrendingTeluguSongs, getJioSaavnSongByUrl } from "../controllers/externalSongs.controller.js";
-import { proxyAudio, validateAudioUrl } from "../controllers/audioProxy.controller.js";
+import { getExternalSongs, getTrendingTeluguSongs } from "../controllers/externalSongs.controller.js";
 import { Router } from "express";
 import multer from "multer";
 
@@ -26,10 +24,6 @@ const upload = multer({ storage: storage });
 // External API songs routes - defining BEFORE local routes
 router.route("/trending-telugu-songs").get(getTrendingTeluguSongs);
 router.route("/external-songs").get(getExternalSongs);
-router.route("/fetch-from-jiosaavvn-url").post(getJioSaavnSongByUrl);
-router.route("/proxy-audio").get(proxyAudio);
-router.route("/validate-audio-url").post(validateAudioUrl);
-router.route("/test-route").get(getTrendingTeluguSongsTest);
 
 // Local database songs routes
 router.route("/addSong").post(upload.any(), addNewSong);

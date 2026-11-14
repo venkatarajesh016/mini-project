@@ -17,12 +17,6 @@ router.get('/stats', recommendationController.getStats);
 // Get recommendations for a specific song
 router.get('/:id', recommendationController.getRecommendations);
 
-// Get recommendations with custom details
-router.post('/', recommendationController.getRecommendationsByDetails);
-
-// Get recommendations from JioSaavn URL
-router.post('/from-url', recommendationController.getRecommendationsByJioSaavnUrl);
-
 // Batch recommendations
 router.post('/batch', recommendationController.getBulkRecommendations);
 

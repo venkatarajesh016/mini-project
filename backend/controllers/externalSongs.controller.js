@@ -3,7 +3,7 @@
  * Handles requests to search external API (JioSaavn)
  */
 
-import { fetchExternalSongs, validateExternalSongs, fetchTrendingTeluguSongs, fetchSongFromJioSaavnUrl } from '../services/externalSongsService.js';
+import { fetchExternalSongs, validateExternalSongs } from '../services/externalSongsService.js';
 import { normalizeSongs } from '../utils/normalizeSong.js';
 import Song from '../models/songs.model.js';
 
@@ -99,58 +99,4 @@ export const getTrendingTeluguSongs = (req, res) => {
   });
 };
 
-/**
- * POST /fetch-from-jiosaavvn-url
- * Fetch complete song details from JioSaavn using the song URL
- * Request body: { jiosaavnUrl: "https://www.jiosaavn.com/song/..." }
- * @returns Normalized song object with title, artist, image, audioUrl, duration
- */
-export const getJioSaavnSongByUrl = async (req, res) => {
-  try {
-    const { jiosaavnUrl } = req.body;
 
-    // Validate input
-    if (!jiosaavnUrl || typeof jiosaavnUrl !== 'string') {
-      return res.status(400).json({
-        success: false,
-        message: 'JioSaavn URL is required and must be a string',
-        song: null,
-      });
-    }
-
-    console.log(`\n🎵 Fetching song from JioSaavn URL: ${jiosaavnUrl}`);
-
-    // Fetch song data from JioSaavn
-    const songData = await fetchSongFromJioSaavnUrl(jiosaavnUrl);
-
-    console.log(`✅ Successfully fetched: ${songData.title} by ${songData.artist}`);
-
-    // Return normalized song data
-    res.status(200).json({
-      success: true,
-      source: 'jiosaavn',
-      message: 'Song fetched successfully',
-      song: {
-        title: songData.title,
-        artist: songData.artist,
-        image: songData.image,
-        audioUrl: songData.audioUrl,
-        album: songData.album,
-        duration: songData.duration,
-        genre: songData.genre,
-        source: 'jiosaavn',
-        _id: songData.songId,
-        jiosaavnUrl: jiosaavnUrl,
-      },
-    });
-  } catch (error) {
-    console.error('❌ Error in getJioSaavnSongByUrl controller:', error.message);
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch song from JioSaavn',
-      error: error.message,
-      song: null,
-    });
-  }
-};

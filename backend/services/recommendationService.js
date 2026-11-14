@@ -160,22 +160,6 @@ class RecommendationService {
   }
 
   /**
-   * Map ML model IDs to database song IDs
-   * This is needed because ML model uses sequential indices
-   * You may need to adjust based on your database setup
-   * 
-   * @param {number} mlId - ML model song ID
-   * @param {Array} databaseSongs - Songs from database
-   * @returns {string} Database song ID
-   */
-  mapMLIdToDBId(mlId, databaseSongs) {
-    if (Array.isArray(databaseSongs) && databaseSongs.length > mlId) {
-      return databaseSongs[mlId]._id;
-    }
-    return null;
-  }
-
-  /**
    * Get recommendations and merge with database info
    * Enriches recommendations with additional database metadata
    * 

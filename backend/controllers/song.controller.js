@@ -1,4 +1,3 @@
-import { get } from "mongoose";
 import Song from "../models/songs.model.js";
 
 export const addNewSong = async (req, res) => {
@@ -81,15 +80,6 @@ export const getSongsByAlbum = async (req, res) => {
     }
 };
 
-export const getSongsByArtist = async (req, res) => {
-    try {
-        const songs = await Song.find({ artist: req.params.artistName });
-        res.status(200).json(songs);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching songs by artist", error });
-    }
-};
-
 export const getTopSongs = async (req, res) => {
     try {
         const limit = req.query.limit || 6;
@@ -113,9 +103,3 @@ export const getTopSongs = async (req, res) => {
     }
 };
 
-export const getTrendingTeluguSongsTest = async (req, res) => {
-    res.status(200).json({
-        test: 'This is a test endpoint',
-        time: new Date().toISOString()
-    });
-};
